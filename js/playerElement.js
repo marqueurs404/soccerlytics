@@ -378,6 +378,8 @@ p.handlePressUp = function (event) {
 					        	view.team2Players.add(event.target.subPlayer); 		//add to team2Players Backbone collection
 					        }
 
+					        event.target.subPlayer.hasPlayed = true; //property to indicate player has played in match
+
 					        view.renderSubContainers();
 
 					        //create new playerMatch for sub

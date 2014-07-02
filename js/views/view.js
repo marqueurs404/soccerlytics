@@ -14,6 +14,11 @@ var MenuView = Backbone.View.extend({
     createjs.Touch.enable(this.stage); //allow multi-touch enabled devices to work too!
 
     this.teams = args.teams; //all soccer teams
+
+    this.team1 = args.team1; //previous team 1, only available after a game is recorded.
+    this.team2 = args.team2; //previous team 2, only available after a game is recorded.
+    this.team1AllPlayers = args.team1AllPlayers; //previous match players, only available after a game is recorded.
+    this.team2AllPlayers = args.team2AllPlayers; //previous match players, only available after a game is recorded.
     this.playerMatches = args.playerMatches; //all playerMatches of previous recording, only available after a game is recorded.
     this.match = args.match;  //previous match recording, only available after a game is recorded.
 
@@ -423,6 +428,10 @@ var MenuView = Backbone.View.extend({
             team1ID = baseView.team1ID;
             team2ID = baseView.team2ID;
 
+            //get backbone models of the teams 
+            var team1 = baseView.teams.get(team1ID);
+            var team2 = baseView.teams.get(team2ID);
+
             //set team 1 players 'selected' attribute 
             var playerCheckboxes = $("#team1PlayerSelector input");
             for (var i = 0, count = playerCheckboxes.length; i < count; i++) {
@@ -482,7 +491,7 @@ var MenuView = Backbone.View.extend({
             Backbone.View.prototype.remove.call(baseView);
 
             //create new RecordView
-            view = new RecordView({stage: stage, team1Players: team1Players, team2Players: team2Players, isDummy: false});
+            view = new RecordView({stage: stage, team1: team1, team2: team2, team1Players: team1Players, team2Players: team2Players, isDummy: false});
 
           } else { //if no. of players are incorrent, show error message
             var playerErrorText = baseView.recordingPage1Container.getChildByName("playerErrorText");
@@ -546,53 +555,91 @@ var MenuView = Backbone.View.extend({
     menuTitle.y = 20;
     baseView.statsPage1Container.addChild(menuTitle);
 
-    //Show stats
-    // this.match = {matchID: "1", matchTime: "5900000",get: function(attr) { return this[attr]; }};
-    // this.playerMatches = [{"playerID":1,"matchID":171,"tackles":1,"interceptions":0,"leftOut":0,"rightOut":0,"middleOut":0,"leftIn":0,"rightIn":0,"middleIn":0,"leftGoal":0,"rightGoal":0,"middleGoal":0,"saves":0,"yellowCard":0,"redCard":0,"fouls":0,"passes":2,"passFail":2,"receives":4,"posessionTime":2993},{"playerID":19,"matchID":171,"tackles":0,"interceptions":0,"leftOut":0,"rightOut":0,"middleOut":0,"leftIn":0,"rightIn":0,"middleIn":0,"leftGoal":0,"rightGoal":0,"middleGoal":0,"saves":0,"yellowCard":0,"redCard":0,"fouls":0,"passes":2,"passFail":0,"receives":2,"posessionTime":2012},{"playerID":21,"matchID":171,"tackles":0,"interceptions":0,"leftOut":0,"rightOut":0,"middleOut":0,"leftIn":0,"rightIn":0,"middleIn":0,"leftGoal":0,"rightGoal":0,"middleGoal":0,"saves":0,"yellowCard":0,"redCard":0,"fouls":0,"passes":1,"passFail":0,"receives":1,"posessionTime":0},{"playerID":24,"matchID":171,"tackles":0,"interceptions":0,"leftOut":0,"rightOut":0,"middleOut":0,"leftIn":0,"rightIn":0,"middleIn":0,"leftGoal":0,"rightGoal":0,"middleGoal":0,"saves":0,"yellowCard":0,"redCard":0,"fouls":0,"passes":2,"passFail":0,"receives":2,"posessionTime":0},{"playerID":27,"matchID":171,"tackles":0,"interceptions":0,"leftOut":0,"rightOut":0,"middleOut":0,"leftIn":0,"rightIn":0,"middleIn":0,"leftGoal":0,"rightGoal":0,"middleGoal":0,"saves":0,"yellowCard":0,"redCard":0,"fouls":0,"passes":1,"passFail":0,"receives":1,"posessionTime":984},{"playerID":38,"matchID":171,"tackles":0,"interceptions":0,"leftOut":0,"rightOut":0,"middleOut":0,"leftIn":0,"rightIn":0,"middleIn":0,"leftGoal":0,"rightGoal":0,"middleGoal":0,"saves":0,"yellowCard":0,"redCard":0,"fouls":0,"passes":0,"passFail":0,"receives":0,"posessionTime":0},{"playerID":39,"matchID":171,"tackles":0,"interceptions":0,"leftOut":1,"rightOut":0,"middleOut":0,"leftIn":1,"rightIn":0,"middleIn":0,"leftGoal":1,"rightGoal":0,"middleGoal":0,"saves":1,"yellowCard":0,"redCard":0,"fouls":0,"passes":2,"passFail":0,"receives":1,"posessionTime":5005},{"playerID":20,"matchID":171,"tackles":0,"interceptions":0,"leftOut":0,"rightOut":0,"middleOut":0,"leftIn":0,"rightIn":0,"middleIn":0,"leftGoal":0,"rightGoal":0,"middleGoal":0,"saves":0,"yellowCard":0,"redCard":0,"fouls":1,"passes":0,"passFail":0,"receives":1,"posessionTime":1998},{"playerID":23,"matchID":171,"tackles":0,"interceptions":3,"leftOut":0,"rightOut":2,"middleOut":0,"leftIn":0,"rightIn":0,"middleIn":0,"leftGoal":0,"rightGoal":0,"middleGoal":0,"saves":0,"yellowCard":0,"redCard":0,"fouls":0,"passes":1,"passFail":1,"receives":5,"posessionTime":7997},{"playerID":31,"matchID":171,"tackles":0,"interceptions":0,"leftOut":0,"rightOut":0,"middleOut":0,"leftIn":0,"rightIn":0,"middleIn":0,"leftGoal":0,"rightGoal":0,"middleGoal":0,"saves":0,"yellowCard":0,"redCard":0,"fouls":0,"passes":2,"passFail":0,"receives":2,"posessionTime":0},{"playerID":32,"matchID":171,"tackles":0,"interceptions":0,"leftOut":0,"rightOut":0,"middleOut":0,"leftIn":0,"rightIn":1,"middleIn":0,"leftGoal":0,"rightGoal":0,"middleGoal":0,"saves":0,"yellowCard":0,"redCard":0,"fouls":0,"passes":1,"passFail":0,"receives":1,"posessionTime":4000},{"playerID":33,"matchID":171,"tackles":0,"interceptions":0,"leftOut":0,"rightOut":0,"middleOut":0,"leftIn":0,"rightIn":0,"middleIn":0,"leftGoal":0,"rightGoal":0,"middleGoal":0,"saves":0,"yellowCard":0,"redCard":0,"fouls":0,"passes":0,"passFail":0,"receives":0,"posessionTime":0},{"playerID":30,"matchID":171,"tackles":0,"interceptions":0,"leftOut":0,"rightOut":0,"middleOut":0,"leftIn":0,"rightIn":0,"middleIn":0,"leftGoal":0,"rightGoal":0,"middleGoal":0,"saves":0,"yellowCard":0,"redCard":0,"fouls":0,"passes":2,"passFail":0,"receives":1,"posessionTime":1003},{"playerID":34,"matchID":171,"tackles":0,"interceptions":0,"leftOut":0,"rightOut":0,"middleOut":0,"leftIn":0,"rightIn":0,"middleIn":0,"leftGoal":0,"rightGoal":0,"middleGoal":0,"saves":0,"yellowCard":0,"redCard":0,"fouls":0,"passes":1,"passFail":0,"receives":1,"posessionTime":1003},{"playerID":17,"matchID":171,"tackles":0,"interceptions":0,"leftOut":0,"rightOut":0,"middleOut":0,"leftIn":0,"rightIn":0,"middleIn":0,"leftGoal":0,"rightGoal":0,"middleGoal":0,"saves":0,"yellowCard":0,"redCard":0,"fouls":0,"passes":4,"passFail":0,"receives":4,"posessionTime":1995},{"playerID":36,"matchID":171,"tackles":0,"interceptions":0,"leftOut":0,"rightOut":0,"middleOut":0,"leftIn":0,"rightIn":0,"middleIn":0,"leftGoal":0,"rightGoal":0,"middleGoal":0,"saves":0,"yellowCard":0,"redCard":0,"fouls":0,"passes":1,"passFail":0,"receives":1,"posessionTime":1999},{"playerID":37,"matchID":171,"tackles":0,"interceptions":0,"leftOut":0,"rightOut":0,"middleOut":0,"leftIn":0,"rightIn":0,"middleIn":0,"leftGoal":0,"rightGoal":0,"middleGoal":0,"saves":0,"yellowCard":0,"redCard":0,"fouls":0,"passes":0,"passFail":0,"receives":0,"posessionTime":0},{"playerID":26,"matchID":171,"tackles":0,"interceptions":0,"leftOut":0,"rightOut":0,"middleOut":0,"leftIn":0,"rightIn":0,"middleIn":0,"leftGoal":0,"rightGoal":0,"middleGoal":0,"saves":0,"yellowCard":0,"redCard":0,"fouls":0,"passes":1,"passFail":0,"receives":0,"posessionTime":999},{"playerID":40,"matchID":171,"tackles":0,"interceptions":0,"leftOut":0,"rightOut":0,"middleOut":1,"leftIn":0,"rightIn":0,"middleIn":0,"leftGoal":0,"rightGoal":0,"middleGoal":0,"saves":0,"yellowCard":0,"redCard":0,"fouls":0,"passes":0,"passFail":0,"receives":1,"posessionTime":2000},{"playerID":15,"matchID":171,"tackles":1,"interceptions":1,"leftOut":0,"rightOut":0,"middleOut":0,"leftIn":0,"rightIn":0,"middleIn":0,"leftGoal":0,"rightGoal":0,"middleGoal":0,"saves":0,"yellowCard":0,"redCard":0,"fouls":0,"passes":3,"passFail":0,"receives":3,"posessionTime":4000},{"playerID":2,"matchID":171,"tackles":0,"interceptions":0,"leftOut":0,"rightOut":0,"middleOut":0,"leftIn":0,"rightIn":0,"middleIn":0,"leftGoal":0,"rightGoal":0,"middleGoal":0,"saves":0,"yellowCard":0,"redCard":0,"fouls":0,"passes":1,"passFail":1,"receives":2,"posessionTime":2003},{"playerID":35,"matchID":171,"tackles":0,"interceptions":0,"leftOut":0,"rightOut":0,"middleOut":0,"leftIn":0,"rightIn":0,"middleIn":0,"leftGoal":0,"rightGoal":0,"middleGoal":0,"saves":0,"yellowCard":0,"redCard":0,"fouls":0,"passes":1,"passFail":0,"receives":1,"posessionTime":995}];
-    if (this.match && this.playerMatches) {
-      var matchText = new createjs.Text("Match ID: " + this.match.get("matchID"), "24px Helvetica", "#FFF").set({
-        x: 50, y: 90
+    if (this.match && this.playerMatches && this.team1AllPlayers && this.team2AllPlayers) {
+      var matchText = new createjs.Text("Match ID: " + this.match.get("matchID"), "16px Helvetica", "#FFF").set({
+        x: 50, y: 85
       });
+      matchText.cache(0,0, matchText.getMeasuredWidth(), matchText.getMeasuredHeight());
       baseView.statsPage1Container.addChild(matchText);
 
-      var matchTimeText = new createjs.Text("Match Time: " + msToTime(this.match.get("matchTime")), "24px Helvetica", "#FFF").set({
-        x: 250, y: 90
+      var matchTimeText = new createjs.Text("Match Time: " + msToTime(this.match.get("matchTime")), "16px Helvetica", "#FFF").set({
+        x: 250, y: 85
       });
+      matchTimeText.cache(0,0, matchTimeText.getMeasuredWidth(), matchTimeText.getMeasuredHeight());
       baseView.statsPage1Container.addChild(matchTimeText);
 
-      var y = 130,
+      var y = 120,
           x = 30;
 
       //draw up headers
-      var headers = ["ID","T", "I", "LO", "RO", "MO", "LI", "RI", "MI", "LG", "RG", "MG", "S", "YC", "RC", "F", "P", "PF", "R", "PT"];
+      var headers = ["Player","T", "I", "LO", "RO", "MO", "LI", "RI", "MI", "LG", "RG", "MG", "S", "YC", "RC", "F", "P", "PF", "R", "PT"];
 
       for (var i = 0, count = headers.length; i < count; i++) {
-        var text = new createjs.Text(headers[i], "16px Helvetica", "#FFF").set({x: x + i * 50, y: y});
+        var text = new createjs.Text(headers[i], "16px Helvetica", "#FFF");
+        if (i == 0) { text.x = x; }
+        else { text.x = x + 57 + i * 47; }
+        text.y = y;
+
+        text.cache(0,0,text.getMeasuredWidth(), text.getMeasuredHeight() + 5);
         baseView.statsPage1Container.addChild(text);
       };
 
       //draw up playerMatches stats
-      var attributes = ["playerID","tackles", "interceptions", "leftOut", "rightOut", "middleOut", "leftIn", "rightIn", "middleIn", "leftGoal", "rightGoal", "middleGoal", "saves", "yellowCard", "redCard", "fouls","passes", "passFail", "receives", "posessionTime"];
+      var attributes = ["playerName","tackles", "interceptions", "leftOut", "rightOut", "middleOut", "leftIn", "rightIn", "middleIn", "leftGoal", "rightGoal", "middleGoal", "saves", "yellowCard", "redCard", "fouls","passes", "passFail", "receives", "posessionTime"];
       var j = 0;
-      this.playerMatches.forEach(function(pMatch) {
-        var i = 0;
 
-        for (var i = 0, count = attributes.length; i < count; i++) {
-          var textLabel = "";
+      function drawPMatchRow(player) {
+        if (player.hasPlayed == true) {
+          var pMatch = baseView.playerMatches.where({ playerID: player.get("playerID") })[0];
 
-          if (attributes[i] == "posessionTime") {
-            // textLabel = Math.round(pMatch.attributes[attributes[i]] / 1000);
-            textLabel = Math.round(pMatch[attributes[i]] / 1000);
-          } else {
-            // textLabel = pMatch.attributes[attributes[i]];
-            textLabel = pMatch[attributes[i]];
-          }
-          
-          var text = new createjs.Text(textLabel, "16px Helvetica", "#FFF").set({ x: x + i * 50, y: y + 30 + j * 27});
-          baseView.statsPage1Container.addChild(text);
-        };
-        j++;
-      });
+          for (var i = 0, count = attributes.length; i < count; i++) {
+            var textLabel = "";
+
+            if (attributes[i] == "posessionTime") {
+              textLabel = Math.round(pMatch.attributes[attributes[i]] / 1000);
+            } else if (attributes[i] == "playerName") {
+              //initials of name and jersey no.
+              textLabel = player.get("playerName").match(/\b(\w)/g).join('. ') + '.';
+              textLabel += " (" + player.get("jerseyNo") + ")"; 
+            } else {
+              textLabel = pMatch.attributes[attributes[i]];
+            }
+            
+            if (j % 2 == 0) var color = "#FFF";
+            else var color = "#FFCF79";
+
+            var text = new createjs.Text(textLabel, "16px Helvetica", color);
+            if (i == 0) text.x = x;
+            else text.x = x + 57 + i * 47;
+            text.y = y + 30 + j * 25;
+
+            text.cache(0, 0, text.getMeasuredWidth(), text.getMeasuredHeight() + 5);
+            baseView.statsPage1Container.addChild(text);
+          };
+
+          j++;
+        }
+      }
+
+      //team header text
+      var text = new createjs.Text("Team: " + this.team1.get("teamName"), "Bold 16px Helvetica", "#FFF");
+      text.x = x;
+      text.y = y + 30 + j * 25;
+      y += 30
+      baseView.statsPage1Container.addChild(text);
+      text.cache(0, 0, text.getMeasuredWidth(), text.getMeasuredHeight() + 10);
+
+      this.team1AllPlayers.forEach(drawPMatchRow);
+      
+      //team header text
+      var text = new createjs.Text("Team: " + this.team2.get("teamName"), "Bold 16px Helvetica", "#FFF");
+      text.x = x;
+      text.y = y + 35 + j * 25;
+      y += 30;
+      baseView.statsPage1Container.addChild(text);
+      text.cache(0, 0, text.getMeasuredWidth(), text.getMeasuredHeight() + 10);
+
+      this.team2AllPlayers.forEach(drawPMatchRow);
 
     } else {
       var msg = new createjs.Text("No games recorded yet", "50px Helvetica", "#FFF");
@@ -603,26 +650,6 @@ var MenuView = Backbone.View.extend({
 
   } //--renderStatsPage1--
 });
-
-// implement passes - done
-// implement half-time - done
-// spam click moves the player during playing mode - fixed
-// implement field-player interactions - done
-// implement pass stats - done
-// implement view-model interaction - done
-// implement end - done
-// implement timer  - done
-// halftime/end trigger does not update possessionTime - done
-// save success - done 
-// Beginning message (Position your players) - done
-// Bound players by text box - done
-// Out button - ball goes to outBox, all players glow - done
-// Clearance/corner - out on own side of field - done
-// Confirmation for yellow/red cards - done
-// halftime switch sides - done
-// customise team colors - done
-// substitution - done
-// Check stats - simple table
 
 var RecordView = Backbone.View.extend({
   initialize: function(args) {
@@ -665,6 +692,10 @@ var RecordView = Backbone.View.extend({
     this.staticElementsContainer = new createjs.Container(); 
     this.stage.addChild(this.staticElementsContainer);
 
+    // backbone models of teams 1 and 2
+    this.team1 = args.team1;
+    this.team2 = args.team2;
+
     // team 1 and 2 players and their subs
     this.team1Players = new PlayerCollection([], { teamID: team1ID});
     this.team2Players = new PlayerCollection([], { teamID: team2ID});
@@ -676,13 +707,23 @@ var RecordView = Backbone.View.extend({
     this.team2SubsContainer = new createjs.Container();
 
     args.team1Players.forEach(function(player) {
-      if (player.selected == true) baseView.team1Players.add(player);
-      else baseView.team1Subs.add(player);
+      if (player.selected == true) { 
+        player.hasPlayed = true; //property that shows player has played in game 
+        baseView.team1Players.add(player);
+      } else {
+        player.hasPlayed = false;
+        baseView.team1Subs.add(player);
+      }
     });
 
     args.team2Players.forEach(function(player) {
-      if (player.selected == true) baseView.team2Players.add(player);
-      else baseView.team2Subs.add(player);
+      if (player.selected == true) { 
+        player.hasPlayed = true; //property that shows player has played in game 
+        baseView.team2Players.add(player);
+      } else {
+        player.hasPlayed = false;
+        baseView.team2Subs.add(player);
+      }
     });
 
     this.renderSubContainers();
@@ -778,7 +819,7 @@ var RecordView = Backbone.View.extend({
     this.currentlySelectedPlayer; // the one being dragged
     this.elementUnderSelectedPlayer; //the element under currently selected player
 
-  }, // End of initialize function
+  }, //--initialize--
 
   render: function() {
     this.renderField();
@@ -791,7 +832,7 @@ var RecordView = Backbone.View.extend({
     // we set the fps for a smoother animation.
     createjs.Ticker.on("tick", this.stage);
     createjs.Ticker.setFPS(FPS);
-  }, // End of render function
+  }, //--render--
 
   //render field
   renderField: function() {
@@ -851,7 +892,7 @@ var RecordView = Backbone.View.extend({
       // move the ball to the very TOP!
       baseView.stage.setChildIndex(baseView.stage.getChildByName('soccerBallEle'), baseView.stage.getNumChildren() - 1); 
     }
-  }, // End of renderField function
+  }, //--renderField--
   
   //render field elements
   renderFieldElements: function() {
@@ -1028,6 +1069,12 @@ var RecordView = Backbone.View.extend({
       event.target.on("mousedown", function(event) {
         var match = baseView.match;
         var playerMatches = baseView.playerMatches;
+        var team1 = baseView.team1;
+        var team2 = baseView.team2;
+        baseView.team1Players.add(baseView.team1Subs.models);
+        baseView.team2Players.add(baseView.team2Subs.models);
+        var team1AllPlayers = baseView.team1Players;
+        var team2AllPlayers = baseView.team2Players;
         match.set({matchTime: baseView.matchTime});
 
         preload.removeAll();
@@ -1048,7 +1095,7 @@ var RecordView = Backbone.View.extend({
         Backbone.View.prototype.remove.call(baseView);
 
         //create new EndView
-        view = new EndView({stage: stage, match: match, playerMatches: playerMatches});
+        view = new EndView({stage: stage, match: match, playerMatches: playerMatches, team1: team1, team2: team2, team1AllPlayers: team1AllPlayers, team2AllPlayers: team2AllPlayers});
         view.render();
       });
     });
@@ -1144,7 +1191,7 @@ var RecordView = Backbone.View.extend({
     this.ballLocation = startBallCircle; // ball starts in center of field
 
     this.fieldEleCount = view.fieldElementsContainer.children.length;
-  }, // End of renderFieldElements function
+  }, //--renderFieldElements--
 
   //render a player
   renderPlayer: function(x, y, player, position, colorObj) {
@@ -1157,7 +1204,7 @@ var RecordView = Backbone.View.extend({
     this.playerContainer.addChild(playerEle);
 
     return playerEle;
-  }, // End of renderPlayer function
+  }, //--renderPlayer--
 
   //remove a player from field
   removePlayer: function(playerEle) {
@@ -1166,7 +1213,7 @@ var RecordView = Backbone.View.extend({
 
     this.playerContainer.removeChild(playerEle);
 
-  }, // End of removePlayer function
+  }, //--removePlayer--
 
   renderSubContainers: function() {
     var baseView = this;
@@ -1197,7 +1244,7 @@ var RecordView = Backbone.View.extend({
       });
     }
 
-  }, // End of renderSubContainers function
+  }, //--renderSubContainers--
 
   // populates field with dummy players - may be useful for making a tutorial
   populateDummyField: function() {
@@ -1222,7 +1269,7 @@ var RecordView = Backbone.View.extend({
       var currPos = this.team2PlayerPositions[i];
       createDummyPlayer(currPos.x, currPos.y, team2Color);
     };
-  }, // End of populateDummyField function
+  }, //--populateDummyField--
 
   //display prompt
   //pass in message to show in prompt and function to call if prompt is replied with yes
@@ -1261,7 +1308,7 @@ var RecordView = Backbone.View.extend({
     promptContainer.addChild(noBtn);
 
     baseView.stage.addChild(promptContainer);
-  } // End of prompt function
+  } //--prompt--
 });
 
 var EndView = Backbone.View.extend({
@@ -1273,17 +1320,25 @@ var EndView = Backbone.View.extend({
     this.stage.enableDOMEvents(true);
 
     this.match = args.match;
-
     this.playerMatches = args.playerMatches;
+    this.team1 = args.team1;
+    this.team2 = args.team2;
+    this.team1AllPlayers = args.team1AllPlayers;
+    this.team2AllPlayers = args.team2AllPlayers;
+
 
     //container to hold elements on ending menu page
     this.endPageContainer = new createjs.Container();
     this.stage.addChild(this.endPageContainer);
+    //container to hold elements on stats page
+    this.statsPage1Container = new createjs.Container();
+
   }, //--initialize--
 
   render: function () {
     //render pages
     this.renderEndPage();
+    this.renderStatsPage1();
 
     this.stage.update();
 
@@ -1309,6 +1364,12 @@ var EndView = Backbone.View.extend({
 
     function switchToMenu () {
       //switch over to menu view
+      var playerMatches = baseView.playerMatches;
+      var match = baseView.match;
+      var team1 = baseView.team1;
+      var team2 = baseView.team2;
+      var team1AllPlayers = baseView.team1AllPlayers;
+      var team2AllPlayers = baseView.team2AllPlayers;
 
       //clear canvas and stage
       stage.autoClear = true; // This must be true to clear the stage.
@@ -1325,7 +1386,7 @@ var EndView = Backbone.View.extend({
       baseView.remove();
       Backbone.View.prototype.remove.call(baseView);
 
-      view = new MenuView({stage: stage, teams: allTeams, playerMatches: baseView.playerMatches, match: baseView.match});
+      view = new MenuView({stage: stage, teams: allTeams, team1: team1, team2: team2, team1AllPlayers: team1AllPlayers, team2AllPlayers: team2AllPlayers, playerMatches: playerMatches, match: match});
       view.render();
     }
 
@@ -1418,5 +1479,125 @@ var EndView = Backbone.View.extend({
       baseView.stage.update();
     });
     this.endPageContainer.addChild(cancelBtn);
-  } //----renderEndPage----
+
+    //Check recorded statss button
+    var statsBtn = new Button("Check recorded stats","#FF0", "#000", 362, 484, 300, 150);
+    statsBtn.on("pressup", function(event) {
+      baseView.stage.removeChild(baseView.endPageContainer); // remove start page elements 
+      baseView.stage.addChild(baseView.statsPage1Container); // add Check Stats menu page 1 elements
+      baseView.stage.update();
+    });
+    this.endPageContainer.addChild(statsBtn);
+
+  }, //----renderEndPage----
+
+  renderStatsPage1: function () {
+    var baseView = this;
+
+    var backBtn = new Button("Back","#FFF", "#000", 20, 20, 100, 50);
+    backBtn.on("pressup", function(event) {
+      baseView.stage.removeChild(baseView.statsPage1Container); // remove Check Stats menu page 1 elements
+      baseView.stage.addChild(baseView.endPageContainer); // add end page elements
+      baseView.stage.update();
+    });
+    baseView.statsPage1Container.addChild(backBtn);
+
+    var menuTitle = new createjs.Text("Last Game's stats", "Bold 50px Helvetica", "#FFF");
+    menuTitle.x = 512 - menuTitle.getMeasuredWidth()/2;
+    menuTitle.y = 20;
+    baseView.statsPage1Container.addChild(menuTitle);
+
+    if (this.match && this.playerMatches && this.team1AllPlayers && this.team2AllPlayers) {
+      var matchText = new createjs.Text("Match ID: " + this.match.get("matchID"), "16px Helvetica", "#FFF").set({
+        x: 50, y: 85
+      });
+      matchText.cache(0,0, matchText.getMeasuredWidth(), matchText.getMeasuredHeight());
+      baseView.statsPage1Container.addChild(matchText);
+
+      var matchTimeText = new createjs.Text("Match Time: " + msToTime(this.match.get("matchTime")), "16px Helvetica", "#FFF").set({
+        x: 250, y: 85
+      });
+      matchTimeText.cache(0,0, matchTimeText.getMeasuredWidth(), matchTimeText.getMeasuredHeight());
+      baseView.statsPage1Container.addChild(matchTimeText);
+
+      var y = 120,
+          x = 30;
+
+      //draw up headers
+      var headers = ["Player","T", "I", "LO", "RO", "MO", "LI", "RI", "MI", "LG", "RG", "MG", "S", "YC", "RC", "F", "P", "PF", "R", "PT"];
+
+      for (var i = 0, count = headers.length; i < count; i++) {
+        var text = new createjs.Text(headers[i], "16px Helvetica", "#FFF");
+        if (i == 0) { text.x = x; }
+        else { text.x = x + 57 + i * 47; }
+        text.y = y;
+
+        text.cache(0,0,text.getMeasuredWidth(), text.getMeasuredHeight() + 5);
+        baseView.statsPage1Container.addChild(text);
+      };
+
+      //draw up playerMatches stats
+      var attributes = ["playerName","tackles", "interceptions", "leftOut", "rightOut", "middleOut", "leftIn", "rightIn", "middleIn", "leftGoal", "rightGoal", "middleGoal", "saves", "yellowCard", "redCard", "fouls","passes", "passFail", "receives", "posessionTime"];
+      var j = 0;
+
+      function drawPMatchRow(player) {
+        if (player.hasPlayed == true) {
+          var pMatch = baseView.playerMatches.where({ playerID: player.get("playerID") })[0];
+
+          for (var i = 0, count = attributes.length; i < count; i++) {
+            var textLabel = "";
+
+            if (attributes[i] == "posessionTime") {
+              textLabel = Math.round(pMatch.attributes[attributes[i]] / 1000);
+            } else if (attributes[i] == "playerName") {
+              //initials of name and jersey no.
+              textLabel = player.get("playerName").match(/\b(\w)/g).join('. ') + '.';
+              textLabel += " (" + player.get("jerseyNo") + ")"; 
+            } else {
+              textLabel = pMatch.attributes[attributes[i]];
+            }
+            
+            if (j % 2 == 0) var color = "#FFF";
+            else var color = "#FFCF79";
+
+            var text = new createjs.Text(textLabel, "16px Helvetica", color);
+            if (i == 0) text.x = x;
+            else text.x = x + 57 + i * 47;
+            text.y = y + 30 + j * 25;
+
+            text.cache(0, 0, text.getMeasuredWidth(), text.getMeasuredHeight() + 5);
+            baseView.statsPage1Container.addChild(text);
+          };
+
+          j++;
+        }
+      }
+
+      //team header text
+      var text = new createjs.Text("Team: " + this.team1.get("teamName"), "Bold 16px Helvetica", "#FFF");
+      text.x = x;
+      text.y = y + 30 + j * 25;
+      y += 30
+      baseView.statsPage1Container.addChild(text);
+      text.cache(0, 0, text.getMeasuredWidth(), text.getMeasuredHeight() + 10);
+
+      this.team1AllPlayers.forEach(drawPMatchRow);
+      
+      //team header text
+      var text = new createjs.Text("Team: " + this.team2.get("teamName"), "Bold 16px Helvetica", "#FFF");
+      text.x = x;
+      text.y = y + 35 + j * 25;
+      y += 30;
+      baseView.statsPage1Container.addChild(text);
+      text.cache(0, 0, text.getMeasuredWidth(), text.getMeasuredHeight() + 10);
+
+      this.team2AllPlayers.forEach(drawPMatchRow);
+
+    } else {
+      var msg = new createjs.Text("No games recorded yet", "50px Helvetica", "#FFF");
+      msg.x = 512 - msg.getMeasuredWidth()/2;
+      msg.y = 384 - msg.getMeasuredHeight()/2;
+      baseView.statsPage1Container.addChild(msg);
+    }
+  } //--renderStatsPage1--
 });
